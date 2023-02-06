@@ -1,0 +1,27 @@
+cloud:
+  aws:
+    credentials:
+      access-key: AKIASD2CSMDPYVZ57IPR
+      secret-key: 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
+    region:
+      auto: false
+      static: us-east-1
+      use-default-aws-region-chain: true
+    stack:
+      auto: false
+
+application:
+  bucket:
+    name: crm-erbilcolak
+
+
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: ${MAX_FILE_SIZE:5MB}
+      max-request-size: ${MAX_REQUEST_SIZE:10MB}
+
+
+server:
+  port: 8080
