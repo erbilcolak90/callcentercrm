@@ -25,7 +25,7 @@ public class ReceiverTransferController {
         return new Result<>(result.getMessage(), result.getData());
     }
 
-    @GetMapping("/getAllAccount")
+    @PostMapping("/getAllAccount")
     public Result<Page<ReceiverTransferAccount>> getAllAccount(@RequestBody PaginationWithUser paginationWithUser){
         Result<Page<ReceiverTransferAccount>> result = receiverTransferAccountService.getAllAccount(paginationWithUser);
         return new Result<>(result.getMessage(), result.getData());

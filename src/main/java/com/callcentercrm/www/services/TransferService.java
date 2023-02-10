@@ -161,7 +161,7 @@ public class TransferService {
     @Transactional
     public Result<String> updateTransfer(Transfer transferInput) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")) || !authentication.getName().equals(transferInput.getUserId())) {
+        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")) && !authentication.getName().equals(transferInput.getUserId())) {
             return new Result<>("forbidden", null);
         }
 

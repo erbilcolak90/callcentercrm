@@ -8,13 +8,13 @@ import org.springframework.data.mongodb.repository.Query;
 
 public interface TradingAccountRepository extends MongoRepository<TradingAccount,String> {
 
-    @Query(value = "{'userId: ?0'}",fields = "{'id': 1, 'tradingAccountType': 1, 'tradingAccountCategory': 1, 'currency': 1, 'balance': 1, 'leverage': 1}")
+    @Query(value = "{'userId': ?0}",fields = "{'id': 1, 'tradingAccountType': 1, 'tradingAccountCategory': 1, 'currency': 1, 'balance': 1, 'leverage': 1}")
     Page<TradingAccount> findByIsDeletedFalse(String userId,Pageable pageable);
 
     @Query(value = "{'userId': ?0}")
     Page<TradingAccount> findAll(String userId,Pageable pageable);
 
-    @Query(value = "{'userId: ?0'}",fields = "{'id': 1, 'tradingAccountType': 1, 'tradingAccountCategory': 1, 'currency': 1, 'balance': 1, 'leverage': 1}")
+    @Query(value = "{'id': ?0}",fields = "{'id': 1, 'userId': 1, 'tradingAccountType': 1, 'tradingAccountCategory': 1, 'currency': 1, 'balance': 1, 'leverage': 1}")
     TradingAccount getById(String id);
 
 

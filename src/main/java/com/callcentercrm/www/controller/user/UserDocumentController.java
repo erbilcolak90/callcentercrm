@@ -43,13 +43,6 @@ public class UserDocumentController {
     }
 
     @ApiOperation(value = "Bearer", authorizations = {@Authorization(value = "JWT")})
-    @PostMapping("/upload")
-    public Result<String> uploadDocument(@RequestBody UserDocumentInput userDocumentInput) {
-        Result<String> result = userDocumentService.uploadDocument(userDocumentInput);
-        return new Result<>(result.getMessage(), result.getData());
-    }
-
-    @ApiOperation(value = "Bearer", authorizations = {@Authorization(value = "JWT")})
     @PostMapping(value = "/uploadFile",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Result<String> uploadDocument(@RequestParam String userId, @RequestParam DocumentType documentType, @RequestPart MultipartFile file ) throws IOException {
         Result<String> result = userDocumentService.uploadDocument(userId, documentType, file);

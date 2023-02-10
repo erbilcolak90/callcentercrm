@@ -31,7 +31,7 @@ public class TradingAccountController {
     }
 
     @ApiOperation(value = "Bearer", authorizations = { @Authorization(value="JWT") })
-    @GetMapping("/getAll")
+    @PostMapping("/getAll")
     public Result<Page<TradingAccount>> getAllTradingAccount(@RequestBody PaginationWithUser paginationWithUser) {
         Result<Page<TradingAccount>> result = tradingAccountService.getAllTradingAccount(paginationWithUser);
         return new Result<>(result.getMessage(), result.getData());
