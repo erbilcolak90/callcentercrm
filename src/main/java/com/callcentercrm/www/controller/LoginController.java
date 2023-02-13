@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 
 @RestController
@@ -34,8 +35,17 @@ public class LoginController {
     @PostMapping("/login")
     public Result<String> login(@RequestBody LoginRequest loginRequest) {
         try{
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),loginRequest.getPassword()));
-            return new Result<>("Login success",tokenManager.generateToken(loginRequest.getUsername()));
+
+            if(authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),loginRequest.getPassword())) != null){
+                String token = tokenManager.generateToken(loginRequest.getUsername());
+                String userId = tokenManager.parseUserIdFromToken(token);
+                Result<String> result = new Result<>();
+                result.setMessage(token);
+                result.setData(userId);
+                return new Result<>(userId,token);
+            }else{
+                return new Result<>("","");
+            }
 
         }catch (UsernameNotFoundException e){
             e.printStackTrace();
