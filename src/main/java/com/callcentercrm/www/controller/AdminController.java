@@ -19,6 +19,7 @@ import java.io.IOException;
 
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/v1/admin")
 public class AdminController {
 
