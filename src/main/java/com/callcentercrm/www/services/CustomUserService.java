@@ -32,12 +32,14 @@ public class CustomUserService {
 
     private UserRepository userRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private UserDocumentRepository userDocumentRepository;
     private TokenManager tokenManager;
 
     @Autowired
-    public CustomUserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, TokenManager tokenManager) {
+    public CustomUserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, UserDocumentRepository userDocumentRepository, TokenManager tokenManager) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.userDocumentRepository = userDocumentRepository;
         this.tokenManager = tokenManager;
     }
 
@@ -63,11 +65,10 @@ public class CustomUserService {
             user.setDeleted(false);
 
             userRepository.save(user);
-            String token = tokenManager.generateToken(userInput.getUsername());
 
-            return new Result<>(token, "username : " + user.getUsername() + " id : " + user.getId());
+            return new Result<>("Success", null,true);
         } else {
-            return new Result<>("Username or email is already exist.", null);
+            return new Result<>("Username or email is already exist.", null,false);
         }
 
     }
@@ -82,7 +83,7 @@ public class CustomUserService {
             if (isUsernameExist == null) {
                 user.setUsername(userInput.getUsername());
             } else {
-                return new Result<>("Username is already exist", null);
+                return new Result<>("Username is already exist", null,false);
             }
         }
         if (userInput.getPassword() != null && !userInput.getPassword().isEmpty()) {
@@ -91,7 +92,7 @@ public class CustomUserService {
         updateInformation(userInput, user);
         userRepository.save(user);
 
-        return new Result<>("Success", "Update completed");
+        return new Result<>("Success", "Update completed",true);
     }
 
     public Result<User> getUserById(String userId) {
@@ -99,15 +100,15 @@ public class CustomUserService {
 
         // if user has a admin role; user can check all users
         if (authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {
-            return new Result<>("success", userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found")));
+            return new Result<>("success", userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found")),true);
         }
         // if userId from authentication and userId from request different.
         if (!authentication.getName().equals(userId)) {
-            return new Result<>("forbidden", null);
+            return new Result<>("forbidden", null,false);
         } else {
             User user = userRepository.getById(userId);
 
-            return new Result<>("User Information:", user);
+            return new Result<>("User Information:", user,true);
         }
 
     }
@@ -125,27 +126,49 @@ public class CustomUserService {
             String upperCaseRoleName = roleName.toUpperCase();
             Role upperCaseRole = Role.valueOf(upperCaseRoleName);
             if (roles.contains(upperCaseRole)) {
-                return new Result<>("User already has this role", null);
+                return new Result<>("User already has this role", null,false);
             } else {
                 for (Role item : Role.values()) {
                     if (upperCaseRole.equals(item)) {
                         roles.add(item);
                         user.setUpdateDate(new Date());
                         userRepository.save(user);
-                        return new Result<>("Role is added", null);
+                        return new Result<>("Role is added", null,true);
                     }
                 }
             }
 
         }
 
-        return new Result<>("This role is not supported", null);
+        return new Result<>("This role is not supported", null,false);
     }
+
 
     //just for admins
     public Result<Page<User>> getAllUsers(PaginationInput paginationInput) {
-        Pageable pageable = PageRequest.of(paginationInput.getPage(), paginationInput.getSize(), Sort.by(Sort.Direction.ASC, paginationInput.getSortBy()));
-        return new Result<>("Success", userRepository.findAll(pageable));
+        Pageable pageable = PageRequest.of(paginationInput.getPage(), paginationInput.getSize(), Sort.by(Sort.Direction.valueOf(paginationInput.getSortType().toString()), paginationInput.getFieldName()));
+        return new Result<>("Success", userRepository.findAll(pageable),true);
+    }
+
+    @Transactional
+    public Result<String> changeUserStatus(String userId, String status){
+
+        User user = userRepository.findById(userId).orElse(null);
+
+        if(user != null){
+            List<UserDocument> userDocumentList = userDocumentRepository.findAll(userId);
+
+            if(!userDocumentList.isEmpty()){
+                user.setStatus(Status.valueOf(status));
+                user.setUpdateDate(new Date());
+                userRepository.save(user);
+                return new Result<>("Success", null, true);
+            }
+        }
+        else{
+            return new Result<>("Not approved", null, false);
+        }
+        return null;
     }
 
     //just for admims
@@ -155,10 +178,6 @@ public class CustomUserService {
         int randomItem = random.nextInt(admins.size());
 
         return admins.get(randomItem).getId();
-
-    }
-
-    public void updateDeposit(String transferId){
 
     }
 

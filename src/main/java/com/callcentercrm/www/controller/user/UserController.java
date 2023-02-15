@@ -28,13 +28,13 @@ public class UserController {
     @PostMapping("/updateUser")
     public Result<String> updateUser(@RequestBody UserInput userInput) {
         Result<String> result = customUserService.updateUser(userInput);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
     @PostMapping("/getUserById")
     public Result<User> getUserById(@RequestParam String userId) {
-        Result<User> resultUser = customUserService.getUserById(userId);
-        return new Result<>(resultUser.getMessage(), resultUser.getData());
+        Result<User> result = customUserService.getUserById(userId);
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
 

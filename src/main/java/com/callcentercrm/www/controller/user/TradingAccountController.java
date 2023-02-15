@@ -28,35 +28,35 @@ public class TradingAccountController {
     @GetMapping("/getById")
     public Result<TradingAccount> getById(@RequestParam String id){
         Result<TradingAccount> result = tradingAccountService.getById(id);
-        return new Result<>(result.getMessage(),result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
     @ApiOperation(value = "Bearer", authorizations = { @Authorization(value="JWT") })
-    @PostMapping("/getAll")
+    @PostMapping("/getAllTradingAccount")
     public Result<Page<TradingAccount>> getAllTradingAccount(@RequestBody PaginationWithUser paginationWithUser) {
         Result<Page<TradingAccount>> result = tradingAccountService.getAllTradingAccount(paginationWithUser);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
     @ApiOperation(value = "Bearer", authorizations = { @Authorization(value="JWT") })
-    @PostMapping("/create")
+    @PostMapping("/createTradingAccount")
     public Result<String> createTradingAccount(@RequestBody TradingAccountInput tradingAccountInput) {
         Result<String> result = tradingAccountService.createTradingAccount(tradingAccountInput);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
     @ApiOperation(value = "Bearer", authorizations = { @Authorization(value="JWT") })
-    @PostMapping("/update")
+    @PostMapping("/updateTradingAccount")
     public Result<String> updateTradingAccount(@RequestBody TradingAccountInput tradingAccountInput) {
         Result<String> result = tradingAccountService.updateTradingAccount(tradingAccountInput);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
     @ApiOperation(value = "Bearer", authorizations = { @Authorization(value="JWT") })
-    @PostMapping("/delete")
+    @PostMapping("/deleteTradingAccount")
     public Result<String> deleteTradingAccount(@RequestParam String tradingAccountId) {
         Result<String> result = tradingAccountService.deleteTradingAccount(tradingAccountId);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
 

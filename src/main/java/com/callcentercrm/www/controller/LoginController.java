@@ -40,9 +40,9 @@ public class LoginController {
                 Result<String> result = new Result<>();
                 result.setMessage(token);
                 result.setData(userId);
-                return new Result<>(userId,token);
+                return new Result<>(userId,token,true);
             }else{
-                return new Result<>("","");
+                return new Result<>("","",false);
             }
 
         }catch (UsernameNotFoundException e){
@@ -56,9 +56,9 @@ public class LoginController {
         String header = request.getHeader("Authorization");
         String token = header.substring(7);
         if(tokenManager.tokenValidate(token)){
-            return new Result<>("Logout Succes",tokenManager.logoutToken(token));
+            return new Result<>("Logout Succes",tokenManager.logoutToken(token),true);
         }else{
-            return new Result<>("invalid token",null);
+            return new Result<>("invalid token",null,false);
         }
 
     }
@@ -66,7 +66,7 @@ public class LoginController {
     @PostMapping("/signUp")
     public Result<String> signUp(@RequestBody UserInput userInput) {
         Result<String> result = customUserService.signUp(userInput);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
 }

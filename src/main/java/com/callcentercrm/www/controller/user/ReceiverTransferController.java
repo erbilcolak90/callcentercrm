@@ -23,30 +23,30 @@ public class ReceiverTransferController {
     @GetMapping("/getById")
     public Result<ReceiverTransferAccount> getById(@RequestParam String id){
         Result<ReceiverTransferAccount> result = receiverTransferAccountService.getById(id);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
     @PostMapping("/getAllAccount")
     public Result<Page<ReceiverTransferAccount>> getAllAccount(@RequestBody PaginationWithUser paginationWithUser){
         Result<Page<ReceiverTransferAccount>> result = receiverTransferAccountService.getAllAccount(paginationWithUser);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
-    @PostMapping("/create")
+    @PostMapping("/createAccount")
     public Result<String> createAccount(@RequestBody ReceiverTransferAccount receiverTransferAccount){
         Result<String> result = receiverTransferAccountService.createAccount(receiverTransferAccount);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
-    @PostMapping("/update")
+    @PostMapping("/updateAccount")
     public Result<String> updateAccount(@RequestBody ReceiverTransferAccount receiverTransferInput){
         Result<String> result = receiverTransferAccountService.updateAccount(receiverTransferInput);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
-    @PostMapping("/delete")
+    @PostMapping("/deleteAccount")
     public Result<String> deleteAccount(@RequestParam String id){
         Result<String> result = receiverTransferAccountService.deleteAccount(id);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 }

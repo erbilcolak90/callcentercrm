@@ -22,11 +22,11 @@ public class CsvController {
     private CSVService csvService;
 
     @ApiOperation(value = "Bearer", authorizations = {@Authorization(value = "JWT")})
-    @PostMapping(value = "/uploadFile",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/uploadCSV",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Result<List<User>> uploadCSV(@RequestPart MultipartFile file){
         if(CSVHelper.hasCSVFormat(file)){
             Result<List<User>> result = csvService.save(file);
-            return new Result<>(result.getMessage(), result.getData());
+            return new Result<>(result.getMessage(), result.getData(), result.isStatus());
         }
         return null;
     }

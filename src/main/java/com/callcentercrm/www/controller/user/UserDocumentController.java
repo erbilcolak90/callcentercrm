@@ -30,38 +30,38 @@ public class UserDocumentController {
 
 
     @ApiOperation(value = "Bearer", authorizations = {@Authorization(value = "JWT")})
-    @GetMapping("/getById")
+    @GetMapping("/getDocumentById")
     public Result<UserDocument> getDocumentById(@RequestParam String documentId) {
         Result<UserDocument> result = userDocumentService.getDocumentById(documentId);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
     @ApiOperation(value = "Bearer", authorizations = {@Authorization(value = "JWT")})
-    @PostMapping("/getAllDocument")
+    @PostMapping("/getAllDocumentByUser")
     public Result<Page<UserDocument>> getAllDocumentByUser(@RequestBody PaginationWithUser paginationWithUser) {
         Result<Page<UserDocument>> result = userDocumentService.getAllDocumentByUser(paginationWithUser);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
     @ApiOperation(value = "Bearer", authorizations = {@Authorization(value = "JWT")})
-    @PostMapping(value = "/uploadFile",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/uploadDocument",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Result<String> uploadDocument(@RequestParam String userId, @RequestParam DocumentType documentType, @RequestPart MultipartFile file ) throws IOException {
         Result<String> result = userDocumentService.uploadDocument(userId, documentType, file);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
     @ApiOperation(value = "Bearer", authorizations = {@Authorization(value = "JWT")})
-    @PostMapping("/change")
+    @PostMapping("/changeToDocument")
     public Result<String> changeToDocument(@RequestBody UserDocumentInput userDocumentInput) {
         Result<String> result = userDocumentService.changeToDocument(userDocumentInput);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
     @ApiOperation(value = "Bearer", authorizations = {@Authorization(value = "JWT")})
-    @PostMapping("/delete")
+    @PostMapping("/deleteDocument")
     public Result<String> deleteDocument(@RequestParam String documentId) {
         Result<String> result = userDocumentService.deleteDocument(documentId);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
 }

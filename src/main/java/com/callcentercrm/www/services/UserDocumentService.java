@@ -42,29 +42,29 @@ public class UserDocumentService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-            return new Result<>("Document :", userDocumentRepository.findById(documentId).orElse(null));
+            return new Result<>("Success :", userDocumentRepository.findById(documentId).orElse(null), true);
         }
 
             UserDocument userDocument = userDocumentRepository.getById(documentId, authentication.getName());
             if (userDocument == null) {
-                return new Result<>("Document is not found: ", null);
+                return new Result<>("Document is not found: ", null, false);
             }
             else{
-                return new Result<>("Success",userDocument);
+                return new Result<>("Success",userDocument, true);
             }
 
 
     }
 
     public Result<Page<UserDocument>> getAllDocumentByUser(PaginationWithUser paginationWithUser) {
-        Pageable pageable = PageRequest.of(paginationWithUser.getPage(), paginationWithUser.getSize(), Sort.by(Sort.Direction.ASC, paginationWithUser.getSortBy()));
+        Pageable pageable = PageRequest.of(paginationWithUser.getPage(), paginationWithUser.getSize(), Sort.by(Sort.Direction.valueOf(paginationWithUser.getSortType().toString()), paginationWithUser.getFieldName()));
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // if user at context has admin role. the admin can access all user document.
         if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-            return new Result<>("Success", userDocumentRepository.findAll(paginationWithUser.getUserId(),pageable));
+            return new Result<>("Success", userDocumentRepository.findAll(paginationWithUser.getUserId(),pageable), true);
         }
         // if user at context has just user role.
-        return new Result<>("Success", userDocumentRepository.findByIsDeletedFalse(authentication.getName(), pageable));
+        return new Result<>("Success", userDocumentRepository.findByIsDeletedFalse(authentication.getName(), pageable), true);
     }
 
     @Transactional
@@ -88,10 +88,10 @@ public class UserDocumentService {
 
             processService.addProcess(document.getId(), ProcessNames.USER_DOCUMENT,document.getDocumentType());
 
-            return new Result<>("Document uploaded", "Waiting for approve");
+            return new Result<>("Success", "Waiting for approve", true);
 
         } else if (!userDocumentInput.getUserId().equals(authentication.getName())) {
-            return new Result<>("forbidden", null);
+            return new Result<>("forbidden", null, false);
         }
         return null;
     }
@@ -117,11 +117,11 @@ public class UserDocumentService {
 
             processService.addProcess(document.getId(), ProcessNames.USER_DOCUMENT,document.getDocumentType());
 
-            return new Result<>("Document uploaded", "Waiting for approve");
+            return new Result<>("Success", "Waiting for approve", true);
 
         }
         else{
-            return new Result<>("forbidden",null);
+            return new Result<>("forbidden",null, false);
         }
     }
 
@@ -132,7 +132,7 @@ public class UserDocumentService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (userDocumentInput.getUserId() == null || userDocumentInput.getUserId().isEmpty()) {
-            return new Result<>("user id is not available", null);
+            return new Result<>("user id is not available", null, false);
         }
 
         if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")) || authentication.getName().equals(userDocumentInput.getUserId())) {
@@ -148,10 +148,10 @@ public class UserDocumentService {
 
             processService.addProcess(userDocument.getId(), ProcessNames.USER_DOCUMENT,userDocument.getDocumentType());
 
-            return new Result<>("Document changed", "Waiting for approve");
+            return new Result<>("Success", "Waiting for approve", true);
 
         } else if (!userDocumentInput.getUserId().equals(authentication.getName())) {
-            return new Result<>("forbidden", null);
+            return new Result<>("forbidden", null, true);
         }
         return null;
 
@@ -162,16 +162,16 @@ public class UserDocumentService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDocument userDocument = userDocumentRepository.findById(documentId).orElse(null);
         if (userDocument == null) {
-            return new Result<>("Document not found", null);
+            return new Result<>("Document not found", null, false);
         }
         if (authentication.getName().equals(userDocument.getUserId()) || authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
             userDocument.setDeleted(true);
             userDocument.setUpdateDate(new Date());
             userDocumentRepository.save(userDocument);
 
-            return new Result<>("Success", "document deleted");
+            return new Result<>("Success", "document deleted", true);
         } else {
-            return new Result<>("forbidden", null);
+            return new Result<>("forbidden", null, false);
         }
     }
 

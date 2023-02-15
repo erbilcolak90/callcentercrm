@@ -43,20 +43,21 @@ public class TradingAccountService {
     public Result<TradingAccount> getById(String id){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-            return new Result<>("Success", tradingAccountRepository.findById(id).orElseThrow());
+            return new Result<>("Success", tradingAccountRepository.findById(id).orElse(null), true);
         } else {
-            return new Result<>("Trading Account information : ", tradingAccountRepository.getById(id));
+            return new Result<>("Trading Account information : ", tradingAccountRepository.getById(id), true);
         }
 
     }
 
+    @Transactional
     public Result<Page<TradingAccount>> getAllTradingAccount(PaginationWithUser paginationWithUser) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Pageable pageable = PageRequest.of(paginationWithUser.getPage(), paginationWithUser.getSize(), Sort.by(Sort.Direction.ASC, paginationWithUser.getSortBy()));
+        Pageable pageable = PageRequest.of(paginationWithUser.getPage(), paginationWithUser.getSize(), Sort.by(Sort.Direction.valueOf(paginationWithUser.getSortType().toString()), paginationWithUser.getFieldName()));
         if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-            return new Result<>("Success", tradingAccountRepository.findAll(paginationWithUser.getUserId(),pageable));
+            return new Result<>("Success", tradingAccountRepository.findAll(paginationWithUser.getUserId(),pageable), true);
         } else {
-            return new Result<>("Success", tradingAccountRepository.findByIsDeletedFalse(authentication.getName(), pageable));
+            return new Result<>("Success", tradingAccountRepository.findByIsDeletedFalse(authentication.getName(), pageable), true);
         }
     }
 
@@ -65,7 +66,7 @@ public class TradingAccountService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (tradingAccountInput.getUserId() == null || tradingAccountInput.getUserId().isEmpty()) {
-            return new Result<>("user id is not available", null);
+            return new Result<>("user id is not available", null, false);
         }
 
         TradingAccount tradingAccount = new TradingAccount();
@@ -76,7 +77,7 @@ public class TradingAccountService {
 
             tradingAccountRepository.save(tradingAccount);
             processService.addProcess(tradingAccount.getId(), ProcessNames.TRADING_ACCOUNT,"Create Trading Account");
-            return new Result<>("Trading account waiting for approve", "Account Id : " + tradingAccount.getId());
+            return new Result<>("Trading account waiting for approve", tradingAccount.getId(), true);
         }
 
         // for user
@@ -86,9 +87,9 @@ public class TradingAccountService {
             tradingAccountRepository.save(tradingAccount);
             processService.addProcess(tradingAccount.getId(), ProcessNames.TRADING_ACCOUNT,"Create Trading Account");
 
-            return new Result<>("Trading account waiting for approve", "Account Id : " + tradingAccount.getId());
+            return new Result<>("Trading account waiting for approve", tradingAccount.getId(), true);
         } else {
-            return new Result<>("forbidden", null);
+            return new Result<>("forbidden", null, false);
         }
     }
 
@@ -97,7 +98,7 @@ public class TradingAccountService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (tradingAccountInput.getUserId() == null || tradingAccountInput.getUserId().isEmpty() || tradingAccountInput.getId() == null || tradingAccountInput.getId().isEmpty()) {
-            return new Result<>("user id or trading account id cannot be empty or null", null);
+            return new Result<>("user id or trading account id cannot be empty or null", null, false);
         }
 
         TradingAccount tradingAccount = tradingAccountRepository.findById(tradingAccountInput.getId()).orElseThrow();
@@ -111,7 +112,7 @@ public class TradingAccountService {
 
 
         if (!authentication.getName().equals(tradingAccountInput.getUserId())) {
-            return new Result<>("forbidden", null);
+            return new Result<>("forbidden", null, false);
         }
 
         tradingAccount.setStatus(Status.PENDING);
@@ -121,7 +122,7 @@ public class TradingAccountService {
         tradingAccountRepository.save(tradingAccount);
         processService.addProcess(tradingAccount.getId(), ProcessNames.TRADING_ACCOUNT,"Update Trading Account");
 
-        return new Result<>("Waiting for approve", "Trading account id :" + tradingAccount.getId());
+        return new Result<>("Waiting for approve", tradingAccount.getId(), true);
     }
 
     @Transactional
@@ -129,16 +130,16 @@ public class TradingAccountService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         TradingAccount tradingAccount = tradingAccountRepository.findById(tradingAccountId).orElse(null);
         if (tradingAccount == null) {
-            return new Result<>("Success", "Trading account not found");
+            return new Result<>("Success", null, false);
         }
         if (authentication.getName().equals(tradingAccount.getUserId()) || authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
             tradingAccount.setDeleted(true);
             tradingAccount.setUpdateDate(new Date());
             tradingAccountRepository.save(tradingAccount);
 
-            return new Result<>("Success", "Trading account deleted : " + tradingAccountId);
+            return new Result<>("Success", tradingAccountId, true);
         } else {
-            return new Result<>("forbidden", null);
+            return new Result<>("forbidden", null, true);
         }
 
     }

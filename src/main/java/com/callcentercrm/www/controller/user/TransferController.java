@@ -29,35 +29,35 @@ public class TransferController {
     @GetMapping("/getById")
     public Result<Transfer> getById(@RequestParam String transferId){
         Result<Transfer> result = transferService.getById(transferId);
-        return new Result<>(result.getMessage(),result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
     @ApiOperation(value = "Bearer", authorizations = { @Authorization(value="JWT") })
-    @GetMapping("/getAll")
+    @GetMapping("/getAllTransfer")
     public Result<Page<Transfer>> getAllTransfer(PaginationInput paginationInput){
         Result<Page<Transfer>> result = transferService.getAllTransfer(paginationInput);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
     @ApiOperation(value = "Bearer", authorizations = { @Authorization(value="JWT") })
     @PostMapping("/withdrawal")
     public Result<String> withdrawal(@RequestBody TransferInput transferInput) {
         Result<String> result = transferService.withdrawal(transferInput);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
     @ApiOperation(value = "Bearer", authorizations = { @Authorization(value="JWT") })
     @PostMapping("/deposit")
     public Result<String> deposit(@RequestBody TransferInput transferInput) {
         Result<String> result = transferService.deposit(transferInput);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
     @ApiOperation(value = "Bearer", authorizations = { @Authorization(value="JWT") })
-    @PostMapping("/update")
+    @PostMapping("/updateTransfer")
     public Result<String> updateTransfer(@RequestBody Transfer transfer) {
         Result<String> result = transferService.updateTransfer(transfer);
-        return new Result<>(result.getMessage(), result.getData());
+        return new Result<>(result.getMessage(), result.getData(), result.isStatus());
     }
 
 }

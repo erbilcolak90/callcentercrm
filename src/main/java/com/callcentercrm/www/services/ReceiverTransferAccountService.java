@@ -30,24 +30,24 @@ public class ReceiverTransferAccountService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         ReceiverTransferAccount receiverTransferAccount = receiverTransferAccountRepository.findById(id).orElse(null);
         if (receiverTransferAccount != null && (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")) || authentication.getName().equals(receiverTransferAccount.getUserId()))){
-            return new Result<>("Success", receiverTransferAccount);
+            return new Result<>("Success", receiverTransferAccount, true);
         } else {
-            return new Result<>("forbidden ",null);
+            return new Result<>("forbidden ",null, false);
         }
 
     }
 
     public Result<Page<ReceiverTransferAccount>> getAllAccount(PaginationWithUser paginationWithUser){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Pageable pageable = PageRequest.of(paginationWithUser.getPage(), paginationWithUser.getSize(), Sort.by(Sort.Direction.ASC, paginationWithUser.getSortBy()));
+        Pageable pageable = PageRequest.of(paginationWithUser.getPage(), paginationWithUser.getSize(), Sort.by(Sort.Direction.valueOf(paginationWithUser.getSortType().toString()), paginationWithUser.getFieldName()));
         if(authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))){
-            return new Result<>("Success", receiverTransferAccountRepository.findById(paginationWithUser.getUserId(),pageable));
+            return new Result<>("Success", receiverTransferAccountRepository.findById(paginationWithUser.getUserId(),pageable), true);
         }
         if(authentication.getName().equals(paginationWithUser.getUserId())){
-            return new Result<>("Success",receiverTransferAccountRepository.findByIsDeletedFalse(paginationWithUser.getUserId(), pageable));
+            return new Result<>("Success",receiverTransferAccountRepository.findByIsDeletedFalse(paginationWithUser.getUserId(), pageable), true);
         }
         else{
-            return new Result<>("Forbidden",null);
+            return new Result<>("Forbidden",null, false);
         }
     }
 
@@ -57,7 +57,7 @@ public class ReceiverTransferAccountService {
                     receiverTransferAccount.getName() == null ||
                     receiverTransferAccount.getBankName() == null ||
                     receiverTransferAccount.getIban() == null){
-            return new Result<>("Account cannot be empty",null);
+            return new Result<>("Account cannot be empty",null, false);
         }
 
         if(authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")) || authentication.getName().equals(receiverTransferAccount.getUserId())){
@@ -69,10 +69,10 @@ public class ReceiverTransferAccountService {
                 db_receiverTransferAccount.setCurrency(receiverTransferAccount.getCurrency());
                 receiverTransferAccountRepository.save(db_receiverTransferAccount);
 
-                return new Result<>("Account created","Account Id : " + db_receiverTransferAccount.getId());
+                return new Result<>("Account created", db_receiverTransferAccount.getId(), true);
         }
         else {
-            return new Result<>("forbidden",null);
+            return new Result<>("forbidden",null, false);
         }
     }
 
@@ -80,10 +80,10 @@ public class ReceiverTransferAccountService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         ReceiverTransferAccount receiverTransferAccount = receiverTransferAccountRepository.findById(receiverTransferInput.getId()).orElse(null);
         if(receiverTransferAccount == null){
-            return new Result<>("Account not found ", null);
+            return new Result<>("Account not found ", null, false);
         }
         if(!receiverTransferInput.getUserId().equals(receiverTransferAccount.getUserId())){
-            return new Result<>("user cannot change",null);
+            return new Result<>("user cannot change",null , false);
         }
         if(authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")) || authentication.getName().equals(receiverTransferAccount.getUserId())){
 
@@ -103,10 +103,10 @@ public class ReceiverTransferAccountService {
 
               receiverTransferAccountRepository.save(receiverTransferAccount);
 
-              return new Result<>("Success", null);
+              return new Result<>("Success", null, true);
         }
         else{
-            return new Result<>("Forbidden",null);
+            return new Result<>("Forbidden",null, false);
         }
     }
 
@@ -114,7 +114,7 @@ public class ReceiverTransferAccountService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         ReceiverTransferAccount receiverTransferAccount = receiverTransferAccountRepository.findById(id).orElse(null);
         if(receiverTransferAccount == null){
-            return new Result<>("Account Not Found",null);
+            return new Result<>("Account Not Found",null, false);
         }
         if(authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")) || authentication.getName().equals(receiverTransferAccount.getUserId())){
 
@@ -122,10 +122,10 @@ public class ReceiverTransferAccountService {
             receiverTransferAccount.setUpdateDate(new Date());
             receiverTransferAccountRepository.save(receiverTransferAccount);
 
-            return new Result<>("Account deleted", null);
+            return new Result<>("Account deleted", null, true);
         }
         else{
-            return new Result<>("Forbidden",null);
+            return new Result<>("Forbidden",null, false);
         }
     }
 }

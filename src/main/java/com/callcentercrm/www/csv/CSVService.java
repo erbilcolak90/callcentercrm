@@ -16,13 +16,13 @@ public class CSVService {
     @Autowired
     private UserRepository userRepository;
 
-    public Result<List<User>> save(MultipartFile file){
+    public Result<List<User>> save(MultipartFile file) {
         try {
             List<User> users = CSVHelper.csvUsers(file.getInputStream());
             userRepository.saveAll(users);
-            return new Result<>("",users);
+            return new Result<>("", users, true);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return new Result<>(e.getMessage(), null, false);
         }
     }
 
